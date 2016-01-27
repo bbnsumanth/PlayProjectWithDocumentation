@@ -1,0 +1,112 @@
+sbt/activator run should be used only in deployment(not in production)
+When using run, on each request, Play checks with sbt to see if any files have changed(this may have significant performance impacts on your application),
+and this will recompile the app,if there are changes in the sources.
+
+Production deployment:
+
+### Application secret
+Before you run your application in production mode, you need to generate an application secret
+Play uses a secret key for a number of things, including:
+^Signing session cookies and CSRF tokens
+^uilt in encryption utilities.
+It is configured in application.conf, with the property name play.crypto.secret.
+When started in prod mode, if Play finds that the secret is not set, or if it is set to changeme, Play will throw an error.
+
+    @@ Generating an application secret
+    Play provides a utility that you can use to generate a new secret. Run playGenerateSecret in the Play console.
+
+    @@ best practises to store application secret
+    Anyone that can get access to the secret will be able to generate any session they please,
+    effectively allowing them to log in to your system as any user they please.
+    Hence it is strongly recommended that you do not check your application secret into source control.
+    Rather, it should be configured on your production server.
+    This means that it is considered bad practice to put the production application secret in application.conf.
+
+        """Command line arguments:
+        One way of configuring the application secret on a production server is to
+        pass it as a system property to your start script. For example:
+        /path/to/yourapp/bin/yourapp -Dplay.crypto.secret="QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n"
+        In some environments however, placing secrets in command line arguments is not considered good practice. There are two ways to address this.
+
+        """Environment variables:
+        The first is to place the application secret in an environment variable.
+        In this case, we recommend you place the following configuration in your application.conf file:
+        play.crypto.secret="changeme"
+        play.crypto.secret=${?APPLICATION_SECRET}
+        The second line in that configuration sets the secret to come from an environment variable called APPLICATION_SECRET
+        if such an environment variable is set, otherwise, it leaves the secret unchanged from the previous line.
+
+        """Production config file
+        Another approach is to create a production.conf file that lives on the server, and includes application.conf,
+        but also overrides any sensitive configuration, such as the application secret and passwords.
+        eg:
+        include "application.conf"
+        play.crypto.secret="QCY?tAnfk?aZ?iwrNwnxIlR6CTf:G3gf:90Latabg@5241AB`R5W:1uDFN];Ik@n"
+        This file can include other credentials for production deployment.eg,db configs etc.
+
+
+### Binary build
+    """dist
+    The dist task builds a binary version of your application that you can deploy to a server without any dependency on sbt or activator,
+    the only thing the server needs is a Java installation.
+    In the Play/sbt/activator console, simply type "dist"
+    This produces a ZIP file containing all JAR files needed to run your application in the target/universal folder of your application.
+    To run the application, unzip the file on the target server, and then run the script in the bin directory. The name of the script is your application name, and it comes in two versions, a bash shell script, and a windows .bat script.
+        //unzipping
+        $ unzip my-first-app-1.0.zip
+        //For Unix users, zip files do not retain Unix file permissions so when the file is expanded the start script will be required to be set as an executable:
+        $ chmod +x /path/to/bin/<project-name>
+        //if secret is present in application.conf file
+        $ my-first-app-1.0/bin/my-first-app
+        //if secret key is passed from command line args
+        $ my-first-app-1.0/bin/my-first-app -Dplay.crypto.secret=abcdefghijk
+        //if we want to pass a different production.conf file for a production env
+        $ my-first-app-1.0/bin/my-first-app -Dconfig.file=/full/path/to/conf/application-prod.conf
+    """universal:packageZipTarball
+    packageZipTarball builds a binary version of your application that you can deploy to a server without any dependency on sbt or activator,
+    the only thing the server needs is a Java installation.
+    Difference btw dist and universal:packageZipTarball is dist produce zip file of binaries where as universal:packageZipTarball produces tar file
+    Tar files retain permissions.
+    In the Play/sbt/activator console, simply type "universal:packageZipTarball"
+    rest is same as the above(no need to give permission)
+
+Play uses the SBT Native Packager plugin. The native packager plugin declares the dist task to create a zip file.
+"dist" is equialent to "universal:packageBin"
+Many other types of archive can be generated including:
+        tar.gz
+        OS X disk images
+        Microsoft Installer (MSI)
+        RPMs
+        Debian packages
+        System V / init.d and Upstart services in RPM/Debian packages
+
+Refer to https://www.playframework.com/documentation/2.4.x/Production for building other server distributions like
+Debian,Rpm etc.
+
+
+#### PID configuration
+    Play manages its own PID, which is described in the Production configuration. In order to tell the startup script where to place the PID file put a file application.ini inside the dist/conf folder and add the following content:
+        -Dpidfile.path=/var/run/${{app_name}}/play.pid
+
+#### Running a production server in place
+     if you want to create a full distribution and  want to run your application from your project’s source directory,
+     we can do that by typing "sbt clean stage" in project directory
+     This requires an sbt or activator installation on the server.
+     This cleans and compiles your application, retrieves the required dependencies and copies them to the target/universal/stage directory.
+     It also creates a bin/<start> script where <start> is the project’s name.
+     Now we can start the app using its start script as above
+
+ ### Running app in prod mode during development
+     Play provides a convenient utility for running a test application in prod mode.
+     To run an application in prod mode, type sbt/activator testProd
+
+
+
+
+
+
+
+
+
+
+

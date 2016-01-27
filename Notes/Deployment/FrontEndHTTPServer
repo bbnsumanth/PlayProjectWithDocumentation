@@ -1,0 +1,21 @@
+You can easily deploy your application as a stand-alone server by setting the application HTTP port to 80: using
+$ /path/to/bin/<project-name> -Dhttp.port=80
+
+Deploying play application as a standalone server will use a Netty server to serve HHTP requests.
+Using a front end HTTP server(Nginx,Apache,Tomcat etc) will rarely give you better performance than using Play server(Netty) directly.
+However, HTTP servers are very good at handling HTTPS, conditional GET requests and static assets.
+
+We need to use a a front end HTTP server,
+    if you plan to host several applications in the same server or
+    load balance several instances of your application for scalability or fault tolerance.
+
+Some good choices for frontend http servers are:
+    lighttpd
+    nginx
+    apache
+Refer https://www.playframework.com/documentation/2.4.x/HTTPServer to find how to configure these http servers
+The basic idea is to run two Play instances of your web application and let the front-end proxy load-balance them.
+In case one is not available, it will forward all the requests to the available one.
+
+
+

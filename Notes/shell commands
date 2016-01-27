@@ -1,0 +1,8 @@
+ cd /Users/sumanth_bbn/workspace/workspacePlayLearning/url-shortner/target/universal/
+ cp url-shortner-1.0-SNAPSHOT.zip /Users/sumanth_bbn/workspace
+ cd /Users/sumanth_bbn/workspace
+ unzip url-shortner-1.0-SNAPSHOT.zip
+ cd url-shortner-1.0-SNAPSHOT/bin/
+ ./url-shortner
+
+

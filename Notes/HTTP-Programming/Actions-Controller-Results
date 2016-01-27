@@ -1,0 +1,77 @@
+ACTION:
+A play.api.mvc.Action is basically a function that handles a request and generates a result to be sent to the client.
+    play.api.mvc.Action:(play.api.mvc.Request => play.api.mvc.Result)
+
+Factory methods
+
+This is the simplest way to create an Action, but we don’t get a reference to the incoming request
+    Action {
+      Ok("Hello world")
+    }
+
+It is often useful to access the HTTP request calling this Action.
+    Action { request =>
+      Ok("Got request [" + request + "]")
+    }
+
+It is often useful to mark the request parameter as implicit,
+so it can be implicitly used by other APIs that need it:
+    Action { implicit request =>
+      Ok("Got request [" + request + "]")
+    }
+
+The last way of creating an Action value is to specify an additional BodyParser argument:
+    Action(parse.json) { implicit request =>
+      Ok("Got request [" + request + "]")
+    }
+
+if we didn't pass a body parser,AnyContentBodyParser is used as default body parser.
+
+
+CONTROLLER:
+A Controller is nothing more than a singleton object that generates Action values.
+When using java API, we need to create then as static.
+Controllers have methods to generate Actions upon different routes.
+Controllers can be constructed by extending Controller class and define methods and values which return Action obj.
+eg:
+    import play.api.mvc._
+    class Application extends Controller {
+      def index = Action {
+        Ok("It works!")
+      }
+      def hello(name: String) = Action {
+        Ok("Hello " + name)
+      }
+    }
+
+RESULT:
+A simple HTTP response consists a status code, a set of HTTP headers and a body to be sent to the web client.
+In play results are defines using play.api.mvc.Result.
+    def index = Action {
+      Result(
+        header = ResponseHeader(200, Map(CONTENT_TYPE -> "text/plain")),
+        body = Enumerator("Hello world!".getBytes())
+      )
+    }
+A Result obj takes params like header:ResponseHeader,body:Enumerator etc
+There are several helpers available to create common results\
+eg:
+    Ok("Hello world!")
+    NotFound(<h1>Page not found</h1>)
+    BadRequest(views.html.form(formWithErrors))
+    InternalServerError("Oops")
+    Status(488)("Strange response type")
+    Redirect("/user/home")
+    Redirect("/user/home", MOVED_PERMANENTLY)
+    TODO
+
+
+Overall structure:
+define a class which extend play.api.mvc.Controller class
+define methods which return play.api.mvc.Action, Action is a function from Request => Result
+define Result obj using play.api.mvc.Result,This takes in paramss like headers,body etc
+Many factory methods are available to create common Results
+
+
+
+

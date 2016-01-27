@@ -1,0 +1,22 @@
+New log file opened at Wed Jan 27 15:10:47 IST 2016 by 64989@sumanth-bbns-MacBook-Pro.local
+Taking next connection to: 58444
+New client attempting to connect on port: 58445-58444
+  Address = /192.168.1.140:58444
+This client on port 58445 has uuid 57e7e04c-1324-4156-a711-cf6a3e884d05 configName play-fork-run humanReadableName Play Fork Run protocolVersion 1 featureTags Vector()
+Connected Clients: play-fork-run-57e7e04c-1324-4156-a711-cf6a3e884d05
+Taking next connection to: 58444
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 58444
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 58444
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 58444
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 58444
+Checking to see if clients are empty...
+We have 1 non-daemon clients, continuing serving connections.
+Taking next connection to: 58444

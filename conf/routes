@@ -1,0 +1,11 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET     /echo  controllers.Application.echo
+GET     /:hash controllers.Application.redirect(hash:String)
+GET     /      controllers.Application.testingServer
+POST    /urls  controllers.Application.shorten
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
