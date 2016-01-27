@@ -1,0 +1,89 @@
+
+Playframework sees requests as an event and route this request to an Action via controller.
+then Action obj receives this request and return a response based on our app logic.
+The router is the component in charge of translating each incoming HTTP request to an Action.
+
+    [CLIENT]->HttpRequest->[HTTP-SERVER]->Request->[PLAY-FRAMEWORK]->Result->[HTTP-SERVER]->HttpResponse->[CLIENT]
+
+CLIENT:
+    It can be a wes browser,android app, or a a command line app like telnet
+HTTP-SERVER:
+    It is an application which can make connections with clients and receive http-requests and send http-responses.
+    Play user netty as default http server.
+    We can also use Akka Http,but it is marked experimental.
+    upon every http-request it generates an event with Request obj
+PLAY-FRAMEWORK:
+    It receives an event from http server upon every http request.
+    The main components are:
+        Routes ::: to route the requests to code which processes them.
+        Controller ::: Code which runs for a particular request, this returns an Action.
+        Action ::: It is a mapping from request => result
+        Result ::: It is an Result obj which is given to Http-server
+    It is basically
+        request -> [ROUTES->CONTROLLER->ACTION] -> result
+
+ROUTING:
+    @@@ Types
+    Play supports generating two types of routers:
+        static router
+        dependency injected router
+    Inorder to use dependency injected routes,we should add following line in build.sbt file
+        routesGenerator := InjectedRoutesGenerator
+    If we are using static router,we need to follow few things:
+        Controllers should be objects rather than classes or
+        @ should be prefixed to controller invocation part of the route.
+
+    @@@ Routes File
+    routes file is placed in conf/ directory.routes file consists of different routes.
+    each route looks like:
+        GET   /clients/:id          controllers.Clients.show(id: Long)
+        httpMethod   path   contollerToGenerateAction
+    we can add comments in routes file using #
+        """ The HTTP method:
+            The HTTP method can be any of the valid methods supported by HTTP (GET, POST, PUT, DELETE, HEAD).
+        """ The URI pattern:
+            The URI pattern defines the route’s request path. Parts of the request path can be dynamic.
+            ^^^ Static path:
+                to exactly match incoming GET /clients/all requests, you can define this route
+                    GET   /clients/all          controllers.Clients.list()
+            ^^^ Dynamic parts:
+                If you want to define a route that retrieves a client by ID, you’ll need to add a dynamic part:
+                    GET   /clients/:id          controllers.Clients.show(id: Long)
+                If you want a dynamic part to capture more than one URI path segment, separated by forward slashes,
+                you can define a dynamic part using the *id syntax, which uses the .+ regular expression:
+                    GET   /files/*name          controllers.Application.download(name)
+                You can also define your own regular expression for the dynamic part, using the $id<regex> syntax:
+                    GET   /items/$id<[0-9]+>    controllers.Items.show(id: Long)
+        """ Call to controller(action generator):
+            This part must define a valid call to a method returning a play.api.mvc.Action value,
+            which will typically be a controller action method.
+            ***PARAMETERS:
+                If the action method defines some parameters, all these parameter values will be searched for in the request URI,
+                either extracted from the URI path itself, or from the query string.
+                from uri
+                    GET   /:page                controllers.Application.show(page)
+                from query string
+                    GET   /                     controllers.Application.show(page)
+
+                We can pass different types of params to controlles
+                ^^^ Parameter types:
+                    For parameters of type String, typing the parameter is optional.
+                    If you want Play to transform the incoming parameter into a specific Scala type, you can explicitly type the parameter:
+                    GET   /clients/:id          controllers.Clients.show(id: Long)
+                ^^^ Parameters with fixed values:
+                    Sometimes you’ll want to use a fixed value for a parameter:
+                    # Extract the page parameter from the path, or fix the value for /
+                    GET   /                     controllers.Application.show(page = "home")
+                    GET   /:page                controllers.Application.show(page)
+                ^^^ Parameters with default values:
+                    # Pagination links, like /clients?page=3
+                    GET   /clients              controllers.Clients.list(page: Int ?= 1)
+                ^^^ Optional parameters
+                    # The version parameter is optional. E.g. /api/list-all?version=3.0
+                    GET   /api/list-all         controllers.Api.list(version: Option[String])
+
+    @@@ Routing priority
+    Many routes can match the same request.
+    If there is a conflict, the first route (in declaration order) is used.
+
+    @@@ Reverse Routing
