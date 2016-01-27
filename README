@@ -1,4 +1,7 @@
-This is your new Play application
-=================================
+This is a sample Play application in scala
+==========================================
 
-This file will be packaged with your application, when using `activator dist`.
+This repo contains documentation needed to understand play framework.
+Documentation is placed in Notes directory.
+
+
